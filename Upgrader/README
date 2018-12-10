@@ -1,0 +1,10 @@
+升级功能使用根据版本号来进行判断，需要在工程中编译进版本号，代码可自动进行识别。需要改一下升级的URL
+使用方法：
+1 在工程的项目文件中加入所有文件
+2 在资源文件中加入下面的资源
+	CHANGEINFO MYFILE "u_ChangeLog.txt"
+  程序中的代码会读入u_ChangeLog.txt中的信息并用来生成升级配置文件
+3 调用  dmUpgrade.auAutoUpgrader1.CheckUpdate执行升级
+4 调用 dmUpgrade.UpdateDeplyConfigFile()来替换发布的升级配置文件
+5 u_Version.pas需要在使用升级功能的时候来修改具体的常量．
+6 修改控件中的文件更新列表
