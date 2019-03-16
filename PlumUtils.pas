@@ -3,7 +3,9 @@ unit PlumUtils;
 interface
 uses
   Classes, SysUtils, Windows, Controls;
-  function Buf2Hex(ABuf: AnsiString): Ansistring;
+  function Buf2Hex(ABuf: AnsiString): Ansistring; Overload;
+  function Buf2Hex(ABuf: TBytes): Ansistring; Overload;
+  function Buf2Hex(ABuf: PByte; Size: Integer): Ansistring; Overload;
   function Hex2Buf(AText: AnsiString): String;
   Procedure RetrieveSerialPorts(const PortNameList: TStrings);
   function Cardinal2BCD(Value: Cardinal): AnsiString;
@@ -106,6 +108,20 @@ begin
   end;
 end;
 
+function Buf2Hex(ABuf: TBytes): Ansistring;
+begin
+  Result:= Buf2Hex(toString(ABuf));
+end;
+
+
+function Buf2Hex(ABuf: PByte; Size: Integer): Ansistring;
+var
+  temp: TBytes;
+begin
+  SetLength(temp, Size);
+  Move(ABuf^, temp[0], Size);
+  Result:= Buf2Hex(temp);
+end;
 
 function Hex2Buf(AText: AnsiString): String;
 var
@@ -117,7 +133,7 @@ begin
   L_Text:= '';
   for i := 0 to Length(AText) - 1 do
   begin
-    L_Char:= AText[i + 1];
+    L_Char:= Char(AText[i + 1]);
     if L_Char in ['0'..'9', 'a'..'z', 'A'..'Z'] then
     begin
       L_Text:= L_Text + L_Char;
