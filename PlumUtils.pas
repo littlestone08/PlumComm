@@ -11,7 +11,9 @@ uses
   function Cardinal2BCD(Value: Cardinal): AnsiString;
   procedure WaitMS(milliseconds: Cardinal);
   function SerialPortIsFree(const PortName: AnsiString): Boolean;
-  function CalcByteSum(const AData: AnsiString): DWORD;
+  function CalcByteSum(const AData: AnsiString): DWORD; Overload;
+  function CalcByteSum(Ptr: PByte; Count: Integer): DWORD; Overload;
+
   function FindCmdLineSwitch(const AName: string; var AValue: String;
                             const Chars: TSysCharSet;
                             IgnoreCase: Boolean): Boolean; Overload;
@@ -23,16 +25,29 @@ uses
   function ToBytes(value: Array of const): TBytes; Overload;
   function ToBytes(PBuf: Pointer; SizeInByte: Cardinal): TBytes; Overload;
   function ToBytes(AText: AnsiString): TBytes; Overload;
-  function ToString(value:TBytes): String; Overload;
+  function ToString(value:TBytes): AnsiString; Overload;
 
   function HexToBytes(AText: AnsiString): TBytes;
   function ReverseBytes(const ABytes: TBytes): TBytes;
   function GetUniqueFileName(AFileName: String): String;
   procedure AppendToStr(var Str: String; const Buf; Size: Integer);
   Procedure SetControlEnable(AControl: TWinControl; Value: Boolean; Recursion: Boolean);
+
+  function IncEx(var P: PByte): Byte; inline;
+  function GetBitValue(const Buf: PByte; Index: Cardinal): Byte;
+  Procedure SetBitValue(const Buf: PByte; Index: Cardinal; Value: Byte);
+
+  function ToString(StartPtr, EndPtr: PByte): AnsiString; Overload;
+  function ToString(StartPtr: PByte; Size: Cardinal): AnsiString; Overload;
 implementation
 uses
   StrUtils, Registry, Forms;
+
+  function IncEx(var P: PByte): Byte; inline;
+  begin
+    Result:= P^;
+    Inc(P);
+  end;
 
 function Cardinal2BCD(Value: Cardinal): AnsiString;
 var
@@ -195,6 +210,21 @@ begin
   for I := 1 to Length(AData) do
   begin
     Result:= Result + Byte(AData[i]);
+  end;
+end;
+
+
+function CalcByteSum(Ptr: PByte; Count: Integer): DWORD; Overload;
+begin
+  Result:= 0;
+  if Ptr <> Nil then
+  begin
+    while Count > 0 do
+    begin
+      Inc(Result, Ptr^);
+      Inc(Ptr);
+      Dec(Count);
+    end;
   end;
 end;
 
@@ -380,7 +410,7 @@ begin
   Move(AText[1], Result[0], L_Len);
 end;
 
-function ToString(value:TBytes): String;
+function ToString(value:TBytes): AnsiString;
 var
   L_Len: Integer;
 begin
@@ -453,4 +483,69 @@ end;
       end;
     end;
   end;
+
+  function GetBitValue(const Buf: PByte; Index: Cardinal): Byte;
+  var
+    ByteIndex, BitIndex: Integer;
+    Ptr: PByte;
+  begin
+    ByteIndex:= Index shr 3;
+    BitIndex:= Index And $07;
+    Ptr:= Buf + ByteIndex;
+
+    if (Ptr^ and ($1 shl BitIndex)) <> 0 then
+    begin
+      Result:= 1;
+    end
+    else
+    begin
+      Result:= 0;
+    end;
+  end;
+
+  Procedure SetBitValue(const Buf: PByte; Index: Cardinal; Value: Byte);
+  var
+    ByteIndex, BitIndex: Integer;
+    Ptr: PByte;
+  begin
+    ByteIndex:= Index shr 3;
+    BitIndex:= Index And $07;
+    Ptr:= Buf + ByteIndex;
+
+    if Value <> 0 then
+    begin
+      Ptr^:= Ptr^ or  ($1 shl BitIndex);
+    end
+    else
+    begin
+      Ptr^:= Ptr^ and  (Not ($1 shl BitIndex));
+
+    end;
+  end;
+
+  function ToString(StartPtr, EndPtr: PByte): AnsiString;
+  var
+    ASize: Integer;
+  begin
+    ASize:= EndPtr - StartPtr + 1;
+    if ASize > 0 then
+    begin
+      SetLength(Result, EndPtr - StartPtr + 1);
+      Move(StartPtr^, Result[1], ASize);
+    end
+    else
+    begin
+      Result:= '';
+    end;
+  end;
+
+  function ToString(StartPtr: PByte; Size: Cardinal): AnsiString;
+  begin
+    SetLength(Result, Size);
+    if Size > 0 then
+    begin
+      Move(StartPtr^, Result[1], Size);
+    end;
+  end;
+
 end.

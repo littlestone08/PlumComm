@@ -12,7 +12,7 @@ type
     Procedure Flush;
   end;
 
-Procedure Log(const Info: String);
+Procedure Log(Info: String; DateTime: Boolean = True; Space: byte = 0);
 function  Log_Dir: String;
 function MultiLineLog: IMultilineLog;
 
@@ -50,12 +50,36 @@ begin
 end;
 
 
-
-Procedure Log(const Info: String);
+const
+  CONST_SPACE: Array[0..10] of String = (
+  '',
+  ' ',
+  '  ',
+  '   ',
+  '    ',
+  '     ',
+  '      ',
+  '       ',
+  '        ',
+  '         ',
+  '          '
+  );
+Procedure Log(Info: String; DateTime: Boolean; Space: byte);
 var
   APath: String;
   AFullFileName: String;
 begin
+  if DateTime then
+  begin
+    Info:= FormatDateTime('HH:NN:SS.ZZZ: ', Now) + Info;
+  end;
+  if Space > 0 then
+  begin
+    if Space > 10 then
+      Space:= 0;
+    Info:= CONST_SPACE[Space] + CONST_SPACE[Space] + CONST_SPACE[Space] + Info;
+  end;
+
   APath:= Log_Dir;
   ForceDirectories(APath);
 
