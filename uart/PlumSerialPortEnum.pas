@@ -49,12 +49,6 @@ begin
               if Not SetupDiEnumDeviceInfo(DevInfoHandle, MemberIndex,
                 DeviceInfoData) then
                 break;
-              begin
-                RegProperty := SPDRP_;
-                { SPDRP_Driver, SPDRP_SERVICE, SPDRP_ENUMERATOR_NAME,SPDRP_PHYSICAL_DEVICE_OBJECT_NAME,SPDRP_FRIENDLYNAME, }
-                SetupDiGetDeviceRegistryProperty(DevInfoHandle, DeviceInfoData,
-                  RegProperty, PropertyRegDataType, NIL, 0, RequiredSize)
-              end;
               // query friendly device name LIKE 'BlueTooth Communication Port (COM8)' etc
               RegProperty := SPDRP_FriendlyName;
               { SPDRP_Driver, SPDRP_SERVICE, SPDRP_ENUMERATOR_NAME,SPDRP_PHYSICAL_DEVICE_OBJECT_NAME,SPDRP_FRIENDLYNAME, }

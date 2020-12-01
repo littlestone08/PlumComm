@@ -210,8 +210,8 @@ begin
 //    Result:= Round(Result / FList.Count);
 ////    OutputDebugString(PChar('有' + INtToStr(FList.count) + '个电平数据, 平均值为 ' +FloatToStr(Result)));
 //  end;
-  while self.FList.Count > 0 do
-    DeleteItem(0);
+//  while self.FList.Count > 0 do
+//    DeleteItem(0);
 end;
 
 {$IFDEF DEBUG}
@@ -235,7 +235,7 @@ begin
   begin
     self.DoShrink;
   end;
-  
+
 end;
 
 { TTickIntPool }
